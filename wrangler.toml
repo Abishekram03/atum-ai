@@ -1,0 +1,6 @@
+name = "atum-backend"
+main = "backend/index.ts"
+compatibility_date = "2024-02-08"
+
+[ai]
+binding = "AI"
