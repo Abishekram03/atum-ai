@@ -26,17 +26,38 @@ export default function ChatContainer() {
     setMessages(prev => [...prev, userMsg]);
     setIsLoading(true);
 
-    // Simulate network delay and response
-    setTimeout(() => {
+    try {
+      const response = await fetch('http://127.0.0.1:8787/generate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + 'dummy-key-1234567890' // Simulate real key usage
+        },
+        body: JSON.stringify({ message: text, workspaceId: 'default_workspace' })
+      });
+
+      if (!response.ok) throw new Error(`API Error: ${response.statusText}`);
+
+      const data = await response.json();
+      
       const botMsg: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: "I am Atum's logic engine. This is a simulated response indicating that the intelligence layer is actively processing your message.",
+        content: data.response || "No response generated.",
         timestamp: Date.now(),
       };
       setMessages(prev => [...prev, botMsg]);
+    } catch (err) {
+      const errorMsg: Message = {
+        id: (Date.now() + 1).toString(),
+        role: 'system',
+        content: "Error communicating with Atum edge layer. Ensure backend is running.",
+        timestamp: Date.now(),
+      };
+      setMessages(prev => [...prev, errorMsg]);
+    } finally {
       setIsLoading(false);
-    }, 1500);
+    }
   };
 
   return (

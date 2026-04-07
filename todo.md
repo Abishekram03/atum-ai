@@ -39,7 +39,7 @@
       Goal: Build Usage page, Logs page, and API keys management page
 
 ### 6. Integration
-- [ ] Step 6.1: Connect frontend to backend
+- [x] Step 6.1: Connect frontend to backend ✅
       Goal: Ensure frontend Chat UI communicates properly with the backend /generate endpoint
-- [ ] Step 6.2: Test full flow
+- [x] Step 6.2: Test full flow ✅
       Goal: End-to-end testing of the entire internal AI system ensuring no hallucinations and correct flow through DB and CF Worker
