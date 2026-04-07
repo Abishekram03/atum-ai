@@ -27,7 +27,7 @@ export default function ChatContainer() {
     setIsLoading(true);
 
     try {
-      const response = await fetch('http://127.0.0.1:8787/generate', {
+      const response = await fetch('https://atum-backend.abishekram596.workers.dev/generate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
