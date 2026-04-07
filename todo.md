@@ -31,11 +31,11 @@
       Goal: Define complete schemas for workspaces, apiKeys, messages, and logs
 
 ### 5. Frontend (React + Vite + Tailwind)
-- [ ] Step 5.1: Initialize Frontend
+- [x] Step 5.1: Initialize Frontend ✅
       Goal: Scaffold React + Vite + Tailwind application inside /src
-- [ ] Step 5.2: Create Chat UI
+- [x] Step 5.2: Create Chat UI ✅
       Goal: Implement main ChatContainer, MessageList, MessageItem, and ChatInput components
-- [ ] Step 5.3: Create additional pages
+- [x] Step 5.3: Create additional pages ✅
       Goal: Build Usage page, Logs page, and API keys management page
 
 ### 6. Integration
