@@ -25,9 +25,9 @@
       Goal: Add basic logging to track requests, logs, and errors
 
 ### 4. Convex Database
-- [ ] Step 4.1: Setup Convex Database
+- [x] Step 4.1: Setup Convex Database ✅
       Goal: Initialize Convex in the project
-- [ ] Step 4.2: Create schemas
+- [x] Step 4.2: Create schemas ✅
       Goal: Define complete schemas for workspaces, apiKeys, messages, and logs
 
 ### 5. Frontend (React + Vite + Tailwind)
