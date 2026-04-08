@@ -19,11 +19,13 @@ export default defineSchema({
 
   messages: defineTable({
     workspaceId: v.id("workspaces"),
+    sessionId: v.optional(v.id("sessions")),
     userId: v.optional(v.string()), // tracking who sent it if needed
     role: v.union(v.literal("user"), v.literal("assistant"), v.literal("system")),
     content: v.string(),
     createdAt: v.number(),
-  }).index("by_workspaceId", ["workspaceId"]),
+  }).index("by_workspaceId", ["workspaceId"])
+    .index("by_sessionId", ["sessionId"]),
 
   logs: defineTable({
     workspaceId: v.optional(v.id("workspaces")),
@@ -34,4 +36,10 @@ export default defineSchema({
     createdAt: v.number(),
   }).index("by_workspaceId", ["workspaceId"])
     .index("by_type", ["type"]),
+
+  sessions: defineTable({
+    workspaceId: v.id("workspaces"),
+    name: v.string(),
+    createdAt: v.number(),
+  }).index("by_workspaceId", ["workspaceId"]),
 });

@@ -4,16 +4,18 @@ import { v } from "convex/values";
 export const list = query({
   args: {},
   handler: async (ctx) => {
-    return await ctx.db.query("apiKeys").order("desc").collect();
+    let workspace = await ctx.db.query("workspaces").first();
+    if (!workspace) return [];
+    return await ctx.db.query("sessions")
+      .withIndex("by_workspaceId", q => q.eq("workspaceId", workspace._id))
+      .order("desc")
+      .collect();
   }
 });
 
 export const create = mutation({
   args: { name: v.string() },
   handler: async (ctx, args) => {
-    const key = 'ak_' + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-    
-    // Get or create default workspace to satisfy Id<"workspaces"> constraints
     let workspace = await ctx.db.query("workspaces").first();
     let workspaceId = workspace?._id;
     if (!workspaceId) {
@@ -23,20 +25,25 @@ export const create = mutation({
       });
     }
 
-    await ctx.db.insert("apiKeys", {
+    return await ctx.db.insert("sessions", {
       workspaceId: workspaceId,
       name: args.name,
-      isActive: true,
-      keyHash: key,
       createdAt: Date.now()
     });
-    return key;
   }
 });
 
 export const remove = mutation({
-  args: { id: v.id("apiKeys") },
+  args: { id: v.id("sessions") },
   handler: async (ctx, args) => {
+    const messages = await ctx.db.query("messages")
+      .withIndex("by_sessionId", q => q.eq("sessionId", args.id))
+      .collect();
+    
+    for (const msg of messages) {
+      await ctx.db.delete(msg._id);
+    }
+    
     await ctx.db.delete(args.id);
   }
 });

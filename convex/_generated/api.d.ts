@@ -11,6 +11,7 @@
 import type * as apiKeys from "../apiKeys.js";
 import type * as logs from "../logs.js";
 import type * as messages from "../messages.js";
+import type * as sessions from "../sessions.js";
 
 import type {
   ApiFromModules,
@@ -22,6 +23,7 @@ declare const fullApi: ApiFromModules<{
   apiKeys: typeof apiKeys;
   logs: typeof logs;
   messages: typeof messages;
+  sessions: typeof sessions;
 }>;
 
 /**

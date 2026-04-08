@@ -3,15 +3,19 @@ import { v } from "convex/values";
 
 export const add = mutation({
   args: {
-    workspaceId: v.optional(v.string()),
-    type: v.union(v.literal("info"), v.literal("error"), v.literal("generation_metric")),
+    workspaceId: v.optional(v.id("workspaces")),
+    type: v.union(
+      v.literal("info"),
+      v.literal("error"),
+      v.literal("generation_metric"),
+    ),
     message: v.string(),
     durationMs: v.optional(v.number()),
     errorStack: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     return await ctx.db.insert("logs", {
-      workspaceId: args.workspaceId as any,
+      workspaceId: args.workspaceId,
       type: args.type,
       message: args.message,
       durationMs: args.durationMs,
@@ -45,7 +49,7 @@ export const getUsageMetrics = query({
       inferences,
       avgLatencyMs: inferences > 0 ? Math.round(totalDuration / inferences) : 0,
       errors,
-      totalLogs: logs.length
+      totalLogs: logs.length,
     };
-  }
+  },
 });

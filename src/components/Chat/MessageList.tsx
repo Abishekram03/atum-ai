@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { Bot, Sparkles } from 'lucide-react';
+import { Sparkles } from 'lucide-react';
 import MessageItem from './MessageItem';
 import type { Message } from './ChatContainer';
 
@@ -35,14 +35,11 @@ export default function MessageList({ messages, isLoading }: MessageListProps) {
         <MessageItem key={msg.id} message={msg} />
       ))}
       {isLoading && (
-        <div className="flex items-start space-x-4 animate-in fade-in slide-in-from-bottom-2">
-          <div className="w-8 h-8 rounded-lg bg-primary/10 border border-primary/30 flex items-center justify-center flex-shrink-0 relative overflow-hidden mt-1 shadow-[0_0_15px_rgba(59,130,246,0.2)]">
-            <Bot size={16} className="text-primary relative z-10" />
-          </div>
-          <div className="glass-panel px-5 py-4 rounded-2xl rounded-tl-sm flex items-center space-x-2">
-            <div className="w-2 h-2 rounded-full bg-primary/50 animate-bounce" style={{ animationDelay: '0ms' }} />
-            <div className="w-2 h-2 rounded-full bg-primary/50 animate-bounce" style={{ animationDelay: '150ms' }} />
-            <div className="w-2 h-2 rounded-full bg-primary/50 animate-bounce" style={{ animationDelay: '300ms' }} />
+        <div className="flex items-start w-full animate-in fade-in slide-in-from-bottom-2">
+          <div className="py-2 flex items-center space-x-1.5 opacity-60">
+            <div className="w-2 h-2 rounded-full bg-zinc-400 animate-bounce" style={{ animationDelay: '0ms' }} />
+            <div className="w-2 h-2 rounded-full bg-zinc-400 animate-bounce" style={{ animationDelay: '150ms' }} />
+            <div className="w-2 h-2 rounded-full bg-zinc-400 animate-bounce" style={{ animationDelay: '300ms' }} />
           </div>
         </div>
       )}

@@ -1,11 +1,12 @@
 import { useState } from 'react';
-import { Key, Plus, X, Copy, CheckCircle2 } from 'lucide-react';
+import { Plus, X, Copy, CheckCircle2, Trash2 } from 'lucide-react';
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 
 export default function ApiKeys() {
   const keys = useQuery(api.apiKeys.list);
   const createKey = useMutation(api.apiKeys.create);
+  const deleteKey = useMutation(api.apiKeys.remove);
   
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newKeyName, setNewKeyName] = useState('');
@@ -28,89 +29,99 @@ export default function ApiKeys() {
   };
 
   return (
-    <div className="flex-1 p-8 h-full flex flex-col overflow-y-auto custom-scrollbar relative">
-      <header className="mb-8 flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-semibold text-text">API Access Keys</h2>
-          <p className="text-text-muted mt-1">Manage external authentication tokens mapped to workspaces.</p>
-        </div>
-        <button 
-          onClick={() => setIsModalOpen(true)}
-          className="flex items-center space-x-2 bg-primary hover:bg-primary-hover text-white px-5 py-2.5 rounded-xl transition-all duration-300 shadow-[0_0_15px_rgba(59,130,246,0.4)]"
-        >
-          <Plus size={18} />
-          <span className="font-medium">Generate Key</span>
-        </button>
-      </header>
-      
-      {keys === undefined ? (
-        <div className="flex-1 flex items-center justify-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-        </div>
-      ) : keys === null || keys.length === 0 ? (
-        <div className="flex-1 glass-panel rounded-2xl flex flex-col items-center justify-center text-center p-8 border-border/40">
-          <div className="w-20 h-20 bg-surface border border-border/60 rounded-3xl flex items-center justify-center mb-6 shadow-2xl relative">
-            <Key className="text-primary w-10 h-10 relative z-10" />
-          </div>
-          <h3 className="text-xl font-medium text-text mb-2">No Active Keys</h3>
-          <p className="text-text-muted max-w-md mx-auto leading-relaxed">
-            Generate an API key to securely allow your external SaaS applications to interface with the Atum AI.
-          </p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full content-start">
-          {keys.map((k) => (
-            <div key={k._id} className="glass-panel p-5 rounded-2xl flex items-center justify-between border-border/60 hover:border-primary/50 transition-colors">
-              <div>
-                <h4 className="font-medium text-text mb-1">{k.name}</h4>
-                <code className="text-sm text-primary/80 bg-primary/10 px-2 py-1 rounded-md">{k.keyHash.substring(0, 10)}...</code>
-              </div>
-              <button 
-                onClick={() => copyToClipboard(k.keyHash)}
-                className="p-2.5 hover:bg-surface rounded-xl transition-colors text-text-muted hover:text-white"
-              >
-                {copiedKey === k.keyHash ? <CheckCircle2 className="text-green-400" size={20} /> : <Copy size={20} />}
-              </button>
+    <div className="flex-1 p-8 h-full flex flex-col overflow-y-auto custom-scrollbar bg-transparent">
+       <div className="max-w-4xl mx-auto w-full pt-4">
+        {/* Header Block matching Anthropic style  */}
+        <header className="mb-8 flex items-start justify-between">
+          <div className="flex flex-col">
+            <div className="flex items-center gap-3">
+              <h2 className="text-3xl font-semibold text-zinc-100 tracking-tight">API keys</h2>
+              <span className="bg-[#2A2A2A] text-zinc-400 text-sm px-2.5 py-[1px] rounded-full font-medium">{keys?.length || 0}</span>
             </div>
-          ))}
+            <p className="text-zinc-400 mt-4 text-[15px] font-medium">API keys are owned by workspaces and remain active even after the creator is removed</p>
+          </div>
+          <button 
+            onClick={() => setIsModalOpen(true)}
+            className="flex items-center space-x-1.5 bg-zinc-100 hover:bg-white text-zinc-900 px-4 py-2 mt-1 rounded-lg transition-colors font-medium text-[15px] shadow-sm"
+          >
+            <Plus size={18} />
+            <span>Create key</span>
+          </button>
+        </header>
+
+        {/* Table Block */}
+        <div className="bg-[#1C1C1E] border border-zinc-800 rounded-xl overflow-hidden mt-6">
+          <div className="grid grid-cols-[1fr,auto] gap-4 px-6 py-4 border-b border-zinc-800 text-sm font-medium text-zinc-400">
+             <div>Key</div>
+          </div>
+          
+          <div className="flex flex-col">
+             {keys === undefined ? (
+               <div className="p-8 flex items-center justify-center">
+                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-zinc-400"></div>
+               </div>
+             ) : keys === null || keys.length === 0 ? (
+               <div className="p-12 flex flex-col items-center justify-center text-center">
+                  <h3 className="text-zinc-300 font-medium mb-1">No API keys found</h3>
+                  <p className="text-zinc-500 text-sm">Create an API key to programmatically access Atum AI.</p>
+               </div>
+             ) : (
+               keys.map((k) => (
+                 <div key={k._id} className="grid grid-cols-[1fr,auto] gap-4 px-6 py-4 items-center border-b border-zinc-800/50 last:border-0 hover:bg-[#2A2A2A]/20 transition-colors">
+                    <div className="flex flex-col gap-1">
+                      <span className="text-zinc-200 font-medium text-[15px]">{k.name}</span>
+                      <span className="text-zinc-500 font-mono text-[13px] tracking-tight">{k.keyHash.substring(0, 20)}...</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                       <button onClick={() => copyToClipboard(k.keyHash)} className="p-2 text-zinc-400 hover:text-zinc-200 transition-colors rounded-md hover:bg-zinc-800" title="Copy Key">
+                         {copiedKey === k.keyHash ? <CheckCircle2 size={18} className="text-green-500" /> : <Copy size={18} />}
+                       </button>
+                       <button onClick={() => deleteKey({ id: k._id })} className="p-2 text-zinc-400 hover:text-red-400 transition-colors rounded-md hover:bg-zinc-800" title="Delete Key">
+                         <Trash2 size={18} />
+                       </button>
+                    </div>
+                 </div>
+               ))
+             )}
+          </div>
         </div>
-      )}
+       </div>
 
       {/* Modal Overlay */}
       {isModalOpen && (
-        <div className="absolute inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm animate-in fade-in">
-          <div className="glass-panel w-full max-w-md p-6 rounded-2xl shadow-2xl border-border/80">
+        <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-[#1C1C1E] w-full max-w-md p-6 rounded-2xl shadow-2xl border border-zinc-800">
             <div className="flex justify-between items-center mb-6">
-              <h3 className="text-xl font-semibold text-text">Create New API Key</h3>
-              <button onClick={() => setIsModalOpen(false)} className="text-text-muted hover:text-text transition-colors p-1">
+              <h3 className="text-xl font-medium text-zinc-100">Create new secret key</h3>
+              <button onClick={() => setIsModalOpen(false)} className="text-zinc-400 hover:text-zinc-200 transition-colors p-1">
                 <X size={20} />
               </button>
             </div>
             <div className="mb-8">
-              <label className="block text-sm font-medium text-text-muted mb-2">Key Name (e.g., Support Team Dashboard)</label>
+              <label className="block text-sm font-medium text-zinc-400 mb-2">Name</label>
               <input 
                 type="text" 
                 value={newKeyName}
                 onChange={(e) => setNewKeyName(e.target.value)}
-                placeholder="Enter a descriptive name"
-                className="w-full bg-surface border border-border/80 rounded-xl px-4 py-3 text-text focus:outline-none focus:border-primary/60 transition-colors"
+                placeholder="My API Key"
+                className="w-full bg-[#2A2A2A] border border-zinc-700 rounded-xl px-4 py-2.5 text-zinc-100 focus:outline-none focus:border-zinc-500 transition-colors"
                 autoFocus
               />
             </div>
             <div className="flex justify-end space-x-3">
               <button 
                 onClick={() => setIsModalOpen(false)}
-                className="px-5 py-2.5 rounded-xl text-text-muted hover:text-white hover:bg-surface transition-colors font-medium border border-transparent shadow-sm"
+                className="px-4 py-2 rounded-lg text-zinc-400 hover:text-zinc-100 hover:bg-[#2A2A2A] transition-colors font-medium text-sm"
               >
                 Cancel
               </button>
               <button 
                 onClick={handleCreate}
                 disabled={!newKeyName.trim() || isGenerating}
-                className="px-6 py-2.5 bg-primary hover:bg-primary-hover disabled:opacity-50 disabled:hover:bg-primary text-white rounded-xl transition-all shadow-[0_0_15px_rgba(59,130,246,0.3)] disabled:shadow-none font-medium border border-transparent flex items-center gap-2"
+                className="px-4 py-2 bg-zinc-100 hover:bg-white disabled:opacity-50 disabled:hover:bg-zinc-100 text-zinc-900 rounded-lg transition-all font-medium text-sm flex items-center gap-2"
               >
-                {isGenerating && <div className="w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />}
-                Generate
+                {isGenerating && <div className="w-4 h-4 rounded-full border-2 border-zinc-900/30 border-t-zinc-900 animate-spin" />}
+                Create secret key
               </button>
             </div>
           </div>

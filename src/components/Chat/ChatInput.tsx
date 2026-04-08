@@ -1,52 +1,82 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import type { KeyboardEvent } from 'react';
-import { Send, Command } from 'lucide-react';
+import { ArrowUp } from 'lucide-react';
+import { cn } from '../../lib/utils';
+import { Button } from '../ui/button';
 
 interface ChatInputProps {
   onSend: (text: string) => void;
   disabled: boolean;
+  placeholder?: string;
 }
 
-export default function ChatInput({ onSend, disabled }: ChatInputProps) {
-  const [text, setText] = useState('');
+export default function ChatInput({ onSend, disabled, placeholder = "Query the Atum intelligence layer..." }: ChatInputProps) {
+  const [message, setMessage] = useState('');
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  const handleSend = () => {
-    if (text.trim() && !disabled) {
-      onSend(text);
-      setText('');
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = "auto";
+      const maxHeight = 120;
+      textareaRef.current.style.height = `${Math.min(
+        textareaRef.current.scrollHeight,
+        maxHeight
+      )}px`;
     }
-  };
+  }, [message]);
 
-  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSend();
+  const handleSend = useCallback(() => {
+    if (disabled || !message.trim()) return;
+
+    onSend(message);
+    setMessage("");
+    
+    if (textareaRef.current) {
+      textareaRef.current.style.height = "auto";
     }
-  };
+  }, [message, disabled, onSend]);
+
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent<HTMLTextAreaElement>) => {
+      if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) {
+        e.preventDefault();
+        handleSend();
+      }
+    },
+    [handleSend]
+  );
+
+  const canSend = message.trim() && !disabled;
 
   return (
-    <div className="relative group">
-      <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-indigo-500/20 rounded-xl blur-lg transition-opacity opacity-0 group-focus-within:opacity-100" />
-      <div className="relative flex items-center glass-panel px-4 py-3 rounded-xl border border-border/80 focus-within:border-primary/50 transition-colors bg-surface/80">
-        <div className="pl-1 pr-3 text-text-muted border-r border-border/80 mr-3 flex flex-col items-center">
-          <Command size={14} className="opacity-50" />
-        </div>
-        <input
-          type="text"
-          value={text}
-          onChange={(e) => setText(e.target.value)}
+    <div className="relative w-full max-w-4xl mx-auto">
+      <div className="bg-[#30302E] border border-zinc-700/50 rounded-xl shadow-[0_0_15px_rgba(0,0,0,0.2)] items-end gap-2 min-h-[100px] flex flex-col transition-all focus-within:border-zinc-500/50">
+        <textarea
+          ref={textareaRef}
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
           onKeyDown={handleKeyDown}
+          placeholder={placeholder}
           disabled={disabled}
-          placeholder="Query the Atum intelligence layer..."
-          className="flex-1 bg-transparent border-none outline-none text-text placeholder-text-muted/60 text-[15px] disabled:opacity-50"
+          className="flex-1 min-h-[60px] w-full p-4 focus-within:border-none focus:outline-none focus:border-none border-none outline-none focus-within:ring-0 focus-within:ring-offset-0 max-h-[120px] resize-none border-0 bg-transparent text-zinc-100 shadow-none focus-visible:ring-0 placeholder:text-zinc-500 text-sm sm:text-base custom-scrollbar"
+          rows={1}
         />
-        <button
-          onClick={handleSend}
-          disabled={!text.trim() || disabled}
-          className="ml-3 p-2 rounded-lg bg-primary hover:bg-primary-hover disabled:opacity-50 disabled:hover:bg-primary text-white transition-all shadow-[0_0_10px_rgba(59,130,246,0.3)] disabled:shadow-none"
-        >
-          <Send size={16} className={text.trim() && !disabled ? "translate-x-0.5 -translate-y-0.5 transition-transform" : ""} />
-        </button>
+        <div className="flex items-center justify-end w-full px-3 pb-2 mt-auto">
+          <Button
+            size="icon"
+            className={cn(
+              "h-8 w-8 p-0 flex-shrink-0 rounded-lg transition-all",
+              canSend
+                ? "bg-amber-600 hover:bg-amber-700 text-white shadow-md shadow-amber-900/20"
+                : "bg-zinc-700/50 text-zinc-500 cursor-not-allowed"
+            )}
+            onClick={handleSend}
+            disabled={!canSend}
+            title="Send query"
+          >
+            <ArrowUp className="h-4 w-4" />
+          </Button>
+        </div>
       </div>
     </div>
   );
