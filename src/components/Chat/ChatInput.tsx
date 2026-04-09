@@ -1,8 +1,8 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
-import type { KeyboardEvent } from 'react';
-import { ArrowUp } from 'lucide-react';
-import { cn } from '../../lib/utils';
-import { Button } from '../ui/button';
+import { useState, useRef, useEffect, useCallback } from "react";
+import type { KeyboardEvent } from "react";
+import { ArrowUp } from "lucide-react";
+import { cn } from "../../lib/utils";
+import { Button } from "../ui/button";
 
 interface ChatInputProps {
   onSend: (text: string) => void;
@@ -10,8 +10,12 @@ interface ChatInputProps {
   placeholder?: string;
 }
 
-export default function ChatInput({ onSend, disabled, placeholder = "Query the Atum intelligence layer..." }: ChatInputProps) {
-  const [message, setMessage] = useState('');
+export default function ChatInput({
+  onSend,
+  disabled,
+  placeholder = "Reply...",
+}: ChatInputProps) {
+  const [message, setMessage] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
@@ -20,7 +24,7 @@ export default function ChatInput({ onSend, disabled, placeholder = "Query the A
       const maxHeight = 120;
       textareaRef.current.style.height = `${Math.min(
         textareaRef.current.scrollHeight,
-        maxHeight
+        maxHeight,
       )}px`;
     }
   }, [message]);
@@ -30,7 +34,7 @@ export default function ChatInput({ onSend, disabled, placeholder = "Query the A
 
     onSend(message);
     setMessage("");
-    
+
     if (textareaRef.current) {
       textareaRef.current.style.height = "auto";
     }
@@ -43,7 +47,7 @@ export default function ChatInput({ onSend, disabled, placeholder = "Query the A
         handleSend();
       }
     },
-    [handleSend]
+    [handleSend],
   );
 
   const canSend = message.trim() && !disabled;
@@ -68,7 +72,7 @@ export default function ChatInput({ onSend, disabled, placeholder = "Query the A
               "h-8 w-8 p-0 flex-shrink-0 rounded-lg transition-all",
               canSend
                 ? "bg-amber-600 hover:bg-amber-700 text-white shadow-md shadow-amber-900/20"
-                : "bg-zinc-700/50 text-zinc-500 cursor-not-allowed"
+                : "bg-zinc-700/50 text-zinc-500 cursor-not-allowed",
             )}
             onClick={handleSend}
             disabled={!canSend}

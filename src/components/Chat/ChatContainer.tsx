@@ -139,7 +139,7 @@ export default function ChatContainer({
       <div className="flex-1 overflow-y-auto custom-scrollbar relative z-10 p-4">
         {localMessages.length === 0 ? (
           <div className="h-full flex flex-col items-center justify-center">
-            <h1 className="text-3xl font-serif font-light text-[#C2C0B6] mb-2">
+            <h1 className="text-3xl font-serif font-light text-[#C2C0B6] mb-2 text-center">
               How can I help you today?
             </h1>
           </div>
