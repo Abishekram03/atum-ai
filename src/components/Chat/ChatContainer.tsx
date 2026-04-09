@@ -86,21 +86,21 @@ export default function ChatContainer({
         content: text,
       });
 
-      const response = await fetch(
-        "https://atum-backend.abishekram596.workers.dev/generate",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: "Bearer " + "dummy-key-1234567890",
-          },
-          body: JSON.stringify({
-            message: text,
-            sessionId: targetSessionId,
-            persistToConvex: false,
-          }),
+      const backendUrl =
+        import.meta.env.VITE_BACKEND_URL ||
+        "https://atum-backend.abishekram596.workers.dev";
+      const response = await fetch(`${backendUrl}/generate`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + "dummy-key-1234567890",
         },
-      );
+        body: JSON.stringify({
+          message: text,
+          sessionId: targetSessionId,
+          persistToConvex: false,
+        }),
+      });
 
       if (!response.ok) throw new Error(`API Error`);
 
