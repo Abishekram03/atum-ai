@@ -3,6 +3,7 @@
 interface ImportMetaEnv {
   readonly VITE_CONVEX_URL: string;
   readonly VITE_CONVEX_SITE_URL?: string;
+  readonly VITE_BACKEND_URL?: string;
   readonly ADMIN_EMAIL: string;
   readonly ADMIN_PASSWORD: string;
 }

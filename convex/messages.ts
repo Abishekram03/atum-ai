@@ -22,9 +22,13 @@ export const save = mutation({
     }
 
     if (!workspaceId) {
-      throw new Error(
-        "workspaceId is required or must be derivable from sessionId",
-      );
+      const existingWorkspace = await ctx.db.query("workspaces").first();
+      workspaceId =
+        existingWorkspace?._id ??
+        (await ctx.db.insert("workspaces", {
+          name: "Default Workspace",
+          createdAt: Date.now(),
+        }));
     }
 
     return await ctx.db.insert("messages", {
