@@ -5,8 +5,6 @@ import { ConvexHttpClient } from "convex/browser";
 import { anyApi } from "convex/server";
 import { ExecutionContext } from "../index";
 
-type SupportedModel = "llama-3-8b-instruct" | "gemma-4-26b-a4b-it";
-
 const TRUSTED_UI_ORIGINS = new Set([
   "https://atum-ai.vercel.app",
   "http://localhost:5173",
@@ -40,7 +38,6 @@ export async function handleGenerate(
     const client = env.CONVEX_URL ? new ConvexHttpClient(env.CONVEX_URL) : null;
     const body = (await request.json()) as {
       message?: string;
-      model?: SupportedModel;
       workspaceId?: string;
       sessionId?: string;
       persistToConvex?: boolean;
@@ -56,11 +53,7 @@ export async function handleGenerate(
     const start = Date.now();
 
     // Step 3.3 AI Integration
-    const aiResponse = await generateResponse(
-      env.AI,
-      body.message,
-      body.model || "llama-3-8b-instruct",
-    );
+    const aiResponse = await generateResponse(env.AI, body.message);
 
     const end = Date.now();
     const durationMs = end - start;
