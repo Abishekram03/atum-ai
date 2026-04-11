@@ -61,10 +61,10 @@ export default function MobileSidebar({
       )}
 
       <div
-        className={`fixed inset-y-0 left-0 z-50 h-full w-[18rem] border-r transition-transform duration-200 ease-out flex flex-col bg-white dark:bg-[#262624] text-zinc-800 dark:text-zinc-200 md:hidden ${isOpen ? "translate-x-0" : "-translate-x-full"}`}
+        className={`fixed inset-y-0 left-0 z-50 h-full w-[18rem] border-r border-zinc-800 transition-transform duration-200 ease-out flex flex-col bg-[#262624] text-zinc-200 md:hidden ${isOpen ? "translate-x-0" : "-translate-x-full"}`}
       >
         <div className="flex flex-col h-full w-full">
-          <div className="flex h-[60px] w-full shrink-0 border-b dark:border-zinc-800 p-3 items-center">
+          <div className="flex h-[60px] w-full shrink-0 border-b border-zinc-800 p-3 items-center">
             <div className="flex items-center gap-3 w-full pl-2">
               <div className="size-8 shrink-0 flex items-center justify-center">
                 <img
