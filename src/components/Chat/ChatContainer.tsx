@@ -89,15 +89,13 @@ export default function ChatContainer({
       const backendUrl =
         import.meta.env.VITE_BACKEND_URL ||
         "https://atum-backend.abishekram596.workers.dev";
-      const productApiKey =
-        import.meta.env.VITE_PRODUCT_API_KEY || "dummy-key-1234567890";
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+        "x-product-id": "customer-support-tool",
+      };
       const response = await fetch(`${backendUrl}/generate`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${productApiKey}`,
-          "x-product-id": "customer-support-tool",
-        },
+        headers,
         body: JSON.stringify({
           message: text,
           sessionId: targetSessionId,
