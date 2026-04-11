@@ -12,6 +12,8 @@ export type Message = {
   timestamp: number;
 };
 
+type SupportedModel = "llama-3-8b-instruct" | "gemma-4-26b-a4b-it";
+
 interface ChatContainerProps {
   sessionId?: Id<"sessions"> | null;
   onNewSession?: (id: Id<"sessions">) => void;
@@ -56,7 +58,7 @@ export default function ChatContainer({
     }
   }, [sessionId, dbMessages, isLoading]);
 
-  const handleSendMessage = async (text: string) => {
+  const handleSendMessage = async (text: string, model: SupportedModel) => {
     if (!text.trim() || isLoading) return;
 
     let targetSessionId = sessionId;
@@ -98,6 +100,7 @@ export default function ChatContainer({
         headers,
         body: JSON.stringify({
           message: text,
+          model,
           sessionId: targetSessionId,
           persistToConvex: false,
         }),

@@ -1,14 +1,21 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import type { KeyboardEvent } from "react";
-import { ArrowUp } from "lucide-react";
+import { ArrowUp, Bot, Check, ChevronDown } from "lucide-react";
 import { cn } from "../../lib/utils";
 import { Button } from "../ui/button";
 
+type SupportedModel = "llama-3-8b-instruct" | "gemma-4-26b-a4b-it";
+
 interface ChatInputProps {
-  onSend: (text: string) => void;
+  onSend: (text: string, model: SupportedModel) => void;
   disabled: boolean;
   placeholder?: string;
 }
+
+const MODEL_OPTIONS: Array<{ id: SupportedModel; label: string }> = [
+  { id: "llama-3-8b-instruct", label: "Llama 3 8B" },
+  { id: "gemma-4-26b-a4b-it", label: "Gemma 4 26B" },
+];
 
 export default function ChatInput({
   onSend,
@@ -16,7 +23,12 @@ export default function ChatInput({
   placeholder = "Reply...",
 }: ChatInputProps) {
   const [message, setMessage] = useState("");
+  const [selectedModel, setSelectedModel] = useState<SupportedModel>(
+    "llama-3-8b-instruct",
+  );
+  const [isModelMenuOpen, setIsModelMenuOpen] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const modelMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (textareaRef.current) {
@@ -29,16 +41,30 @@ export default function ChatInput({
     }
   }, [message]);
 
+  useEffect(() => {
+    const handleOutsideClick = (event: MouseEvent) => {
+      if (
+        modelMenuRef.current &&
+        !modelMenuRef.current.contains(event.target as Node)
+      ) {
+        setIsModelMenuOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleOutsideClick);
+    return () => document.removeEventListener("mousedown", handleOutsideClick);
+  }, []);
+
   const handleSend = useCallback(() => {
     if (disabled || !message.trim()) return;
 
-    onSend(message);
+    onSend(message, selectedModel);
     setMessage("");
 
     if (textareaRef.current) {
       textareaRef.current.style.height = "auto";
     }
-  }, [message, disabled, onSend]);
+  }, [message, disabled, onSend, selectedModel]);
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent<HTMLTextAreaElement>) => {
@@ -51,6 +77,9 @@ export default function ChatInput({
   );
 
   const canSend = message.trim() && !disabled;
+  const selectedModelLabel =
+    MODEL_OPTIONS.find((option) => option.id === selectedModel)?.label ||
+    "Llama 3 8B";
 
   return (
     <div className="relative w-full max-w-4xl mx-auto">
@@ -65,7 +94,44 @@ export default function ChatInput({
           className="flex-1 min-h-[60px] w-full p-4 focus-within:border-none focus:outline-none focus:border-none border-none outline-none focus-within:ring-0 focus-within:ring-offset-0 max-h-[120px] resize-none border-0 bg-transparent text-zinc-100 shadow-none focus-visible:ring-0 placeholder:text-zinc-500 text-sm sm:text-base custom-scrollbar"
           rows={1}
         />
-        <div className="flex items-center justify-end w-full px-3 pb-2 mt-auto">
+        <div className="flex items-center justify-between w-full px-3 pb-2 mt-auto">
+          <div className="relative" ref={modelMenuRef}>
+            <button
+              type="button"
+              onClick={() => setIsModelMenuOpen((prev) => !prev)}
+              className="flex items-center gap-2 rounded-lg border border-zinc-700 bg-[#2B2B29] px-2.5 py-1.5 text-xs text-zinc-200 hover:border-zinc-600 hover:bg-[#323230] transition"
+              title="Select model"
+            >
+              <Bot className="h-3.5 w-3.5 text-zinc-400" />
+              <span>{selectedModelLabel}</span>
+              <ChevronDown className="h-3.5 w-3.5 text-zinc-400" />
+            </button>
+
+            {isModelMenuOpen && (
+              <div className="absolute bottom-11 left-0 z-30 min-w-[180px] rounded-lg border border-zinc-700 bg-[#1D1D1B] p-1 shadow-xl">
+                {MODEL_OPTIONS.map((option) => {
+                  const isSelected = selectedModel === option.id;
+                  return (
+                    <button
+                      key={option.id}
+                      type="button"
+                      onClick={() => {
+                        setSelectedModel(option.id);
+                        setIsModelMenuOpen(false);
+                      }}
+                      className="flex w-full items-center justify-between rounded-md px-2 py-1.5 text-left text-xs text-zinc-200 hover:bg-zinc-800/80 transition"
+                    >
+                      <span>{option.label}</span>
+                      {isSelected && (
+                        <Check className="h-3.5 w-3.5 text-[#C4A86E]" />
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
           <Button
             size="icon"
             className={cn(
