@@ -4,3 +4,6 @@ compatibility_date = "2024-02-08"
 
 [ai]
 binding = "AI"
+
+[vars]
+CONVEX_URL = "https://calm-starling-952.eu-west-1.convex.cloud"

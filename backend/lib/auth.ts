@@ -1,9 +1,28 @@
-export async function validateApiKey(apiKey: string): Promise<boolean> {
-  // Step 3.4 API key validation
-  // In a real app we'd validate the hash against Convex
-  // For standard initialization, we ensure it matches expected formats
-  if (!apiKey || apiKey.trim().length < 10) {
-    return false;
+import { ConvexHttpClient } from "convex/browser";
+import { anyApi } from "convex/server";
+import { Env } from "../types";
+
+export type AuthenticatedApiKey = {
+  apiKeyId: string;
+  workspaceId: string;
+  keyName: string;
+  product?: string;
+};
+
+export async function validateApiKey(
+  apiKey: string,
+  env: Env,
+  product?: string,
+): Promise<AuthenticatedApiKey | null> {
+  if (!apiKey || apiKey.trim().length < 10 || !env.CONVEX_URL) {
+    return null;
   }
-  return true;
+
+  const client = new ConvexHttpClient(env.CONVEX_URL);
+  const authResult = await client.mutation(anyApi.apiKeys.authenticate, {
+    apiKey,
+    product,
+  });
+
+  return authResult;
 }
