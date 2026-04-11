@@ -5,15 +5,29 @@ import { ConvexHttpClient } from "convex/browser";
 import { anyApi } from "convex/server";
 import { ExecutionContext } from "../index";
 
+const TRUSTED_UI_ORIGINS = new Set([
+  "https://atum-ai.vercel.app",
+  "http://localhost:5173",
+  "http://localhost:3000",
+]);
+
 export async function handleGenerate(
   request: Request,
   env: Env,
   ctx: ExecutionContext,
 ): Promise<Response> {
   const productHeader = request.headers.get("x-product-id") || undefined;
-  const apiKey = request.headers.get("Authorization")?.replace("Bearer ", "");
+  const apiKey = request.headers
+    .get("Authorization")
+    ?.replace("Bearer ", "")
+    .trim();
+  const requestOrigin = request.headers.get("Origin") || "";
+  const isTrustedUiRequest = TRUSTED_UI_ORIGINS.has(requestOrigin);
   const auth = apiKey ? await validateApiKey(apiKey, env, productHeader) : null;
-  if (!auth) {
+
+  // External callers must provide a valid API key.
+  // Atum's own UI is allowed without a key.
+  if ((apiKey && !auth) || (!apiKey && !isTrustedUiRequest)) {
     return new Response(JSON.stringify({ error: "Unauthorized" }), {
       status: 401,
       headers: { "Access-Control-Allow-Origin": "*" },
@@ -44,16 +58,16 @@ export async function handleGenerate(
     const end = Date.now();
     const durationMs = end - start;
     console.log(
-      `[LOG] Workspace: ${auth.workspaceId || "N/A"} | Session: ${body.sessionId || "N/A"} | Product: ${auth.product || "N/A"} | Duration: ${durationMs}ms`,
+      `[LOG] Workspace: ${auth?.workspaceId || "N/A"} | Session: ${body.sessionId || "N/A"} | Product: ${auth?.product || "N/A"} | Duration: ${durationMs}ms`,
     );
 
     // Async save to Convex DB
     if (client) {
       const usageLogPromise = client.mutation(anyApi.logs.add, {
-        workspaceId: auth.workspaceId,
-        apiKeyId: auth.apiKeyId,
-        apiKeyName: auth.keyName,
-        product: auth.product,
+        workspaceId: auth?.workspaceId,
+        apiKeyId: auth?.apiKeyId,
+        apiKeyName: auth?.keyName,
+        product: auth?.product || (isTrustedUiRequest ? "atum-ui" : undefined),
         endpoint: "/generate",
         requestChars: body.message.length,
         responseChars: aiResponse.length,
@@ -102,10 +116,11 @@ export async function handleGenerate(
       ctx.waitUntil(
         client
           .mutation(anyApi.logs.add, {
-            workspaceId: auth.workspaceId,
-            apiKeyId: auth.apiKeyId,
-            apiKeyName: auth.keyName,
-            product: auth.product,
+            workspaceId: auth?.workspaceId,
+            apiKeyId: auth?.apiKeyId,
+            apiKeyName: auth?.keyName,
+            product:
+              auth?.product || (isTrustedUiRequest ? "atum-ui" : undefined),
             endpoint: "/generate",
             status: "error",
             type: "error",
