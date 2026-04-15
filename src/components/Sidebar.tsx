@@ -52,7 +52,7 @@ export default function Sidebar({
   return (
     <div
       ref={sidebarRef}
-      className={`fixed left-0 z-40 h-full shrink-0 border-r dark:border-zinc-800 transition-all duration-200 ease-out flex flex-col bg-white dark:bg-[#262624] text-zinc-800 dark:text-zinc-200 ${isCollapsed ? "w-14" : "w-60"}`}
+      className={`fixed left-0 z-40 h-full shrink-0 border-r-[1.5px] dark:border-[#3F3D3A] transition-all duration-200 ease-out flex flex-col bg-white dark:bg-[#262624] text-zinc-800 dark:text-zinc-200 ${isCollapsed ? "w-14" : "w-60"}`}
     >
       <div className="flex flex-col h-full w-full">
         <div className="flex h-[60px] w-full shrink-0 border-b dark:border-zinc-800 p-3 items-center">
